@@ -166,29 +166,44 @@ task WMGame "Web & Mobile Game" {
       depends !tMDesign
       effort 15d
       allocate dev1, me
-      
-      # Incidencia añadida en la fecha de hoy
-      journalentry 2026-04-10 "Progreso móvil" {
-        author me
-        alert green
-        summary "Comenzando a configurar la versión móvil del juego."
-      }
     }
   }
 
   task tcloud "Cloud Back-End Deployment" {
     purge chargeset
     chargeset back
-    depends WMGame.tback # Dependencia lógica: esperar al backend
+    depends WMGame.tback
     
     task tCEval "Cloud Evaluation and Decision" {
       effort 3d
       allocate boss, me
     }
+    task tCEprog "Cloud Backend Software programming" {
+      effort 15d
+      allocate me, dev3
+      depends WMGame.tcloud.tCEval
+    }
+    task tCEdes "Cloud Network Backend design" {
+      effort 1d
+      allocate me, dev3
+      depends WMGame.tcloud.tCEprog
+    }
+    task tCEfire "Cloud Firewall setup" {
+      effort 2d
+      allocate me, dev3
+      depends WMGame.tcloud.tCEdes
+    }
     task tCDeploy "Cloud Deployment" {
       depends !tCEval
       effort 5d
-      allocate dev1
+      allocate me
+      depends WMGame.tcloud.tCEfire
+    }
+      
+    journalentry 2026-04-10 "Expired license for cloud service" {
+      author me
+      alert red
+      summary "The license for the AWS cloud expired because we have no funds."
     }
   }
 
@@ -200,7 +215,7 @@ task WMGame "Web & Mobile Game" {
       actual:effort 20d
       depends WMGame.twebF, WMGame.tback, WMGame.tmobile, WMGame.tcloud
       minstart 2026-05-15
-      }
+  }
 
     
   task deliveries "Milestones" {
@@ -404,11 +419,10 @@ resourcereport resourceGraph "" {
   sorttasks plan.start.up
 }
 
-# Informe adicional de la planificación inicial
 taskreport initialPlan "Initial_Plan.html" {
   formats html
-  scenarios plan # Fuerza a mostrar solo la planificación base original
-  headline "Planificación Inicial del Proyecto"
+  scenarios plan
+  headline "Initial planning for the project"
   columns bsi { title 'WBS' }, name, start, end, effort
   timeformat "%Y-%m-%d"
   loadunit days
