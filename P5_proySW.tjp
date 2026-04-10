@@ -155,17 +155,22 @@ task WMGame "Web & Mobile Game" {
 
   task tmobile "Mobile Front-End" {
     purge chargeset
-    chargeset mFront # Cuenta ya definida en el archivo original
-    depends WMGame.twebF # Dependencia lógica: esperar al front-end web
+    chargeset mFront
+    depends WMGame.twebF
     
     task tMDesign "Mobile GUI Design" {
       effort 5d
-      allocate me # Asignándote a la tarea
+      allocate me
     }
     task tMDev "Mobile Construction" {
       depends !tMDesign
       effort 15d
       allocate dev1, me
+    }
+    task tMtest "Mobile End Test" {
+      depends !tMDev
+      effort 3d
+      allocate dev1
     }
   }
 
